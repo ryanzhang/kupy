@@ -1,85 +1,82 @@
+# 先创建一个数据库sandbox
+创建表
+```
+create schema kupy;
+CREATE TABLE IF NOT EXISTS kupy.sync_status  (
+    id BIGINT NOT NULL,
+    table_name VARCHAR(255),
+    rc boolean,
+    update_time TIMESTAMP,
+    comment VARCHAR(255),
+    PRIMARY KEY (id)
+);
+create table kupy.fund (
+       id bigint not null,
+        sec_id varchar(255),
+        ticker varchar(255),
+        sec_short_name varchar(255),
+        trade_abbr_name varchar(255),
+        category varchar(255),
+        operation_mode varchar(255),
+        index_fund varchar(255),
+        etf_lof varchar(255),
+        is_qdii boolean,
+        is_fof boolean,
+        is_guar_fund boolean,
+        guar_period float,
+        guar_ratio float,
+        exchange_cd varchar(255),
+        list_status_cd varchar(255),
+        manager_name varchar(255),
+        status varchar(255),
+        establish_date date,
+        list_date date,
+        delist_date date,
+        expire_date date,
+        management_company integer,
+        management_full_name varchar(255),
+        custodian integer,
+        custodian_full_name varchar(255),
+        invest_field varchar(3072),
+        invest_target varchar(2048),
+        perf_benchmark varchar(255),
+        circulation_shares float,
+        is_class integer,
+        idx_id varchar(255),
+        idx_ticker varchar(255),
+        idx_short_name varchar(255),
+        management_short_name varchar(255),
+        custodian_short_name varchar(255),
+        sec_full_name varchar(255),
+        class_name varchar(255),
+        primary key (id)
+    );
 
-# Python Project Template
+CREATE SEQUENCE IF NOT EXISTS kupy.fund_id_seq START WITH 1 INCREMENT BY 1;
+CREATE UNIQUE INDEX IF NOT EXISTS fund_idx ON kupy.fund(sec_id);
 
-A low dependency and really simple to start project template for Python Projects.
+INSERT INTO kupy.sync_status(id, table_name) VALUES(1, 'equity');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(2, 'equity_industry');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(3, 'equ_share');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(4, 'fund');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(5, 'fund_day');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(6, 'idx');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(7, 'mkt_equ_day');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(8, 'mkt_idx_day');
+INSERT INTO kupy.sync_status(id, table_name) VALUES(9, 'trade_calendar');
 
-See also 
-- [Flask-Project-Template](https://github.com/rochacbruno/flask-project-template/) for a full feature Flask project including database, API, admin interface, etc.
-- [FastAPI-Project-Template](https://github.com/rochacbruno/fastapi-project-template/) The base to start an openapi project featuring: SQLModel, Typer, FastAPI, JWT Token Auth, Interactive Shell, Management Commands.
-
-### HOW TO USE THIS TEMPLATE
-
-> **DO NOT FORK** this is meant to be used from **[Use this template](https://github.com/rochacbruno/python-project-template/generate)** feature.
-
-1. Click on **[Use this template](https://github.com/rochacbruno/python-project-template/generate)**
-3. Give a name to your project  
-   (e.g. `my_awesome_project` recommendation is to use all lowercase and underscores separation for repo names.)
-3. Wait until the first run of CI finishes  
-   (Github Actions will process the template and commit to your new repo)
-4. If you want [codecov](https://about.codecov.io/sign-up/) Reports and Automatic Release to [PyPI](https://pypi.org)  
-  On the new repository `settings->secrets` add your `PIPY_API_TOKEN` and `CODECOV_TOKEN` (get the tokens on respective websites)
-4. Read the file [CONTRIBUTING.md](CONTRIBUTING.md)
-5. Then clone your new project and happy coding!
-
-> **NOTE**: **WAIT** until first CI run on github actions before cloning your new project.
-
-### What is included on this template?
-
-- 🖼️ Templates for starting multiple application types:
-  * **Basic low dependency** Python program (default) [use this template](https://github.com/rochacbruno/python-project-template/generate)
-  * **Flask** with database, admin interface, restapi and authentication [use this template](https://github.com/rochacbruno/flask-project-template/generate).
-  **or Run `make init` after cloning to generate a new project based on a template.**
-- 📦 A basic [setup.py](setup.py) file to provide installation, packaging and distribution for your project.  
-  Template uses setuptools because it's the de-facto standard for Python packages, you can run `make switch-to-poetry` later if you want.
-- 🤖 A [Makefile](Makefile) with the most useful commands to install, test, lint, format and release your project.
-- 📃 Documentation structure using [mkdocs](http://www.mkdocs.org)
-- 💬 Auto generation of change log using **gitchangelog** to keep a HISTORY.md file automatically based on your commit history on every release.
-- 🐋 A simple [Containerfile](Containerfile) to build a container image for your project.  
-  `Containerfile` is a more open standard for building container images than Dockerfile, you can use buildah or docker with this file.
-- 🧪 Testing structure using [pytest](https://docs.pytest.org/en/latest/)
-- ✅ Code linting using [flake8](https://flake8.pycqa.org/en/latest/)
-- 📊 Code coverage reports using [codecov](https://about.codecov.io/sign-up/)
-- 🛳️ Automatic release to [PyPI](https://pypi.org) using [twine](https://twine.readthedocs.io/en/latest/) and github actions.
-- 🎯 Entry points to execute your program using `python -m <kupy>` or `$ kupy` with basic CLI argument parsing.
-- 🔄 Continuous integration using [Github Actions](.github/workflows/) with jobs to lint, test and release your project on Linux, Mac and Windows environments.
-
-> Curious about architectural decisions on this template? read [ABOUT_THIS_TEMPLATE.md](ABOUT_THIS_TEMPLATE.md)  
-> If you want to contribute to this template please open an [issue](https://github.com/rochacbruno/python-project-template/issues) or fork and send a PULL REQUEST.
-
-[❤️ Sponsor this project](https://github.com/sponsors/rochacbruno/)
-
-<!--  DELETE THE LINES ABOVE THIS AND WRITE YOUR PROJECT README BELOW -->
-
----
-# kupy
-
-[![codecov](https://codecov.io/gh/ryanzhang/kupy/branch/main/graph/badge.svg?token=kupy_token_here)](https://codecov.io/gh/ryanzhang/kupy)
-[![CI](https://github.com/ryanzhang/kupy/actions/workflows/main.yml/badge.svg)](https://github.com/ryanzhang/kupy/actions/workflows/main.yml)
-
-Awesome kupy created by ryanzhang
-
-## Install it from PyPI
-
-```bash
-pip install kupy
+insert into kupy.fund(id, sec_id, ticker, sec_short_
+ name, list_status_cd) values(1, '000001.XSHE', '000001', '
+ 平安基金', 'L');
+insert into kupy.fund(id, sec_id, ticker, sec_short_
+ name, list_status_cd) values(2, '501216.XSHE', '501216', '
+ 测试基金', 'UN');
 ```
 
-## Usage
-
-```py
-from kupy import BaseClass
-from kupy import base_function
-
-BaseClass().base_method()
-base_function()
+Grant permission on user
 ```
+GRANT CONNECT ON DATABASE sandbox TO "user";
+GRANT USAGE ON SCHEMA kupy TO "user";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA kupy TO "user";
 
-```bash
-$ python -m kupy
-#or
-$ kupy
 ```
-
-## Development
-
-Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.

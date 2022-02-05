@@ -122,6 +122,7 @@ testdist:
 
 .PHONY: sdist
 sdist:
+	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
 # Make container image by podman
