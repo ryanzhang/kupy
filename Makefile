@@ -113,23 +113,22 @@ switch-to-poetry: ## Switch to poetry package manager.
 init:             ## Initialize the project based on an application template.
 	@./.github/init.sh
 
-.PHONY: testdist testdist stagedeploy
+.PHONY: testdist testdist stagedeploy systest
 
 stagedeploy: clean test testdist systest
 
-PRE_TAG := $(cat kupy/VERSION)
+PRE_TAG := $(shell cat kupy/VERSION)
 testdist:
 	@git checkout kupy/VERSION
-	@echo "$(PRE_TAG)"
-	@read -p "Version? (provide the next x.y.z version,Previous tag, $(PRE_TAG) ) : " TAG
-	@echo "$${TAG}" > kupy/VERSION
+	@read -p "Version? (provide the next x.y.z version,Previous tag, $(PRE_TAG) ) : " TAG;\
+	echo $$TAG > kupy/VERSION;\
 	python setup.py sdist bdist_wheel
 	twine upload -r pypitest dist/*
-	#Wait 5 minute
-	@sleep 5
+	#Wait 10 seconds for test.pypi.org to proceed
+	@sleep 10
 
 systest:
-	cd systest && make systest
+	cd systest && make test
 	
 
 .PHONY: sdist
