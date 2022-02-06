@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
-import argparse 
-import logging  
+import argparse
+import logging
 
 from . import BaseClass, base_function  # pragma: no cover
 
@@ -8,6 +8,7 @@ from . import BaseClass, base_function  # pragma: no cover
 logging.basicConfig(
     level=logging.INFO, format=" %(asctime)s - %(levelname)s- %(message)s"
 )
+
 
 def main() -> None:  # pragma: no cover
     """

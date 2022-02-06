@@ -13,6 +13,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class SyncStatus(Base):
     __tablename__ = "sync_status"
     __table_args__ = {"schema": "pyb"}
@@ -28,6 +29,7 @@ class SyncStatus(Base):
 
     def __init__(self):
         pass
+
 
 # 不完整字段
 class Fund(Base):

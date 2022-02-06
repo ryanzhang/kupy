@@ -5,16 +5,14 @@ import traceback
 
 import pandas as pd
 import psycopg2
-from sqlalchemy import (
-    create_engine,
-)
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, relationship
-
-Base = declarative_base()
+from sqlalchemy.orm import Session
 
 from kupy.config import configs
 from kupy.logger import logger
+
+Base = declarative_base()
 
 postgres_host = configs["postgres_host"].data
 postgres_port = configs["postgres_port"].data
@@ -35,16 +33,19 @@ _conn_string = (
     + postgres_password
 )
 
-_db_string = f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}"
+_db_string = \
+    f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}"
 
 
 class DBAdaptor:
-    def __init__(self, conn_string="", sqlalchemy_connect_string="", is_use_cache=False):
+    def __init__(
+        self, conn_string="", sqlalchemy_connect_string="", is_use_cache=False
+    ):
         """构造函数
 
         Args:
             conn_string (str, optional): psycogpg2库的数据库链接字符串. Defaults to 系统配置文件中的配置.
-            sqlalchemy_connect_string(str, optional): sqlalchemy库的数据库链接串, Defaults to 系统配置文件中的配置. 
+            sqlalchemy_connect_string(str, optional): sqlalchemy库的数据库链接串, Defaults to 系统配置文件中的配置.
             is_use_cache (bool, optional): 是否允许使用pkl cache对sql查询进行缓冲. Defaults to False.
         """
         if conn_string == "":
@@ -56,47 +57,47 @@ class DBAdaptor:
             sqlalchemy_connect_string = _db_string
         self.engine = create_engine(sqlalchemy_connect_string)
 
-    def setCacheMode(self, is_use_cache):
+    def set_cache_mode(self, is_use_cache):
         """设置是否使用pkl cache缓存查询
         Args:
             is_use_cache (bool): True或者False, 会覆盖构造函数是的设定
         """
         self.is_use_cache = is_use_cache
 
-    def getDfAndCsvBySql(self, query_sql:str) -> tuple[pd.DataFrame, str]:
-        """getDfBySql一样，但是额外输出csv文件路径
+    def get_df_csv_by_sql(self, query_sql: str) -> tuple[pd.DataFrame, str]:
+        """get_df_by_sql一样，但是额外输出csv文件路径
 
         Args:
             query_sql ([str]): [sql query string]
 
         Returns:
             tuple[pd.DataFrame, str]: [返回两个参数，一个是DataFrame, 一个是输出csv路金]
-        """        
-        df = self.getDfBySql(query_sql)
+        """
+        df = self.get_df_by_sql(query_sql)
         csv_file_path = (
             configs["data_folder"].data
             + "cache/"
-            + self.calculateCacheFilename(query_sql)
+            + self.get_hash_filename(query_sql)
             + ".csv"
         )
         df.to_csv(csv_file_path)
 
         return df, csv_file_path
 
-    def getDfBySql(self, query_sql:str) -> pd.DataFrame:
-        """[根据sql返回DataFrame, 是否使用缓存保存pkl结果取决于setCacheMode，或者构造函数设定]
+    def get_df_by_sql(self, query_sql: str) -> pd.DataFrame:
+        """[根据sql返回DataFrame, 是否使用缓存保存pkl结果取决于set_cache_mode，或者构造函数设定]
 
         Args:
             query_sql ([str]): [sql查询语句]
 
         Returns:
             pd.DataFrame: [返回的dataframe]
-        """        
+        """
         if self.is_use_cache:
             df_cache_file = (
                 configs["data_folder"].data
                 + "cache/"
-                + self.calculateCacheFilename(query_sql)
+                + self.get_hash_filename(query_sql)
                 + ".pkl"
             )
         else:
@@ -129,7 +130,7 @@ class DBAdaptor:
 
         return df
 
-    def getAnyById(self, cls, id):
+    def get_any_by_id(self, cls, id):
         """根据id号获取entity对象，返回的entity对象实例由cls 对象指定
 
         Args:
@@ -138,11 +139,9 @@ class DBAdaptor:
 
         Returns:
             [any]: [返回根据cls定义的对象实例, cls必须是sqlalchemy entity对象]
-        """        
+        """
         session = Session(self.engine)
-        return session.query(cls).filter(
-            cls.id == id
-        )[0]
+        return session.query(cls).filter(cls.id == id)[0]
 
     def save(self, entity) -> bool:
         """Save 单个sqlalchemy 对象
@@ -152,7 +151,7 @@ class DBAdaptor:
 
         Returns:
             bool: [是否保存成功]
-        """        
+        """
         try:
             session = Session(self.engine)
             session.add(entity)
@@ -164,7 +163,7 @@ class DBAdaptor:
 
         return True
 
-    def saveAll(self, entitylist) -> bool:
+    def save_all(self, entitylist) -> bool:
         """保存多个实体对象列表
 
         Args:
@@ -172,7 +171,7 @@ class DBAdaptor:
 
         Returns:
             bool: [保存是否成功]
-        """        
+        """
         try:
             session = Session(self.engine)
             session.add_all(entitylist)
@@ -184,8 +183,8 @@ class DBAdaptor:
 
         return True
 
-    #Ticker is the key in the update_dict
-    def updateAnyeByTicker(self, cls, update_dict: dict) -> bool:
+    # Ticker is the key in the update_dict
+    def update_any_by_ticker(self, cls, update_dict: dict) -> bool:
         try:
             session = Session(self.engine)
             for key, value in update_dict.items():
@@ -204,7 +203,7 @@ class DBAdaptor:
             return False
         return True
 
-    def updateAnyeById(self, cls, id, update_dict: dict) -> bool:
+    def update_any_by_id(self, cls, id, update_dict: dict) -> bool:
         """根据id以及 一个dict 来更新任意的sqlalchemy entitty表
 
         Args:
@@ -213,7 +212,7 @@ class DBAdaptor:
 
         Returns:
             bool: [操作是否成功的结果]
-        """        
+        """
         try:
             session = Session(self.engine)
             result = session.query(cls).filter(cls.id == id)
@@ -230,7 +229,7 @@ class DBAdaptor:
             return False
         return True
 
-    def deleteById(self, cls, id) -> bool:
+    def delete_by_id(self, cls, id) -> bool:
         """Delete Any SqlAlchemy entity by Id
 
         Args:
@@ -238,7 +237,7 @@ class DBAdaptor:
 
         Returns:
             bool: [操作是否成功]
-        """        
+        """
         try:
             session = Session(self.engine)
             session.query(cls).filter(cls.id == id).delete()
@@ -253,7 +252,7 @@ class DBAdaptor:
         return True
 
     @staticmethod
-    def calculateCacheFilename(query_sql) -> str:
+    def get_hash_filename(query_sql) -> str:
         """静态方法，根据sql生成5位hash串, 缓存pkl和csv文件以次命名, cache路径来自于configs["data_folder"].data设定+cache/目录
 
         Args:
@@ -261,5 +260,5 @@ class DBAdaptor:
 
         Returns:
             str: [description]
-        """        
+        """
         return hashlib.md5(query_sql.encode()).hexdigest()[0:5]

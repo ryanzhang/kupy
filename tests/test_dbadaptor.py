@@ -17,7 +17,7 @@ query_sql = "select * from pyb.fund"
 expect_cache_file_path = (
     configs["data_folder"].data
     + "cache/"
-    + DBAdaptor.calculateCacheFilename(query_sql)
+    + DBAdaptor.get_hash_filename(query_sql)
     + ".pkl"
 )
 
@@ -32,41 +32,42 @@ class TestDBAdaptor:
         return db
 
     def test_cache_file_name(self, db):
-        cache1 = db.calculateCacheFilename("select * from pyb.fund")
+        cache1 = db.get_hash_filename("select * from pyb.fund")
         assert 5 == len(cache1)
-        cache2 = db.calculateCacheFilename("select * from pyb.sync_status")
+        cache2 = db.get_hash_filename("select * from pyb.sync_status")
         assert 5 == len(cache2)
         assert cache1 != cache2
 
     def test_get_sql_without_cache(self, db):
-        db.setCacheMode(False)
-        df, csv_file = db.getDfAndCsvBySql(query_sql)
+        db.set_cache_mode(False)
+        df, csv_file = db.get_df_csv_by_sql(query_sql)
         assert df is not None
         assert csv_file is not None
         # assert not os.path.exists(expect_cache_file_path)
         assert os.path.exists(csv_file)
 
     def test_get_sql_with_cache(self, db):
-        db.setCacheMode(True)
-        df, csv_file = db.getDfAndCsvBySql(query_sql)
+        db.set_cache_mode(True)
+        df, csv_file = db.get_df_csv_by_sql(query_sql)
         assert df is not None
         assert csv_file is not None
         assert os.path.exists(expect_cache_file_path)
         assert os.path.exists(csv_file)
 
-    def test_update_sync_status(self, db:DBAdaptor):
-        # db.setCacheMode(True)
-        assert db.updateAnyeById(
+    def test_update_sync_status(self, db: DBAdaptor):
+        # db.set_cache_mode(True)
+        assert db.update_any_by_id(
             SyncStatus,
-            1, {
-                "rc":True,
-                "update_time":datetime.datetime.now(),
-                "comment":"更新前:55,增量:10"
-            }
+            1,
+            {
+                "rc": True,
+                "update_time": datetime.datetime.now(),
+                "comment": "更新前:55,增量:10",
+            },
         )
 
     def test_load_sql(self, db):
-        df_equ = db.getDfBySql(
+        df_equ = db.get_df_by_sql(
             "select sec_id,ticker, sec_short_name from \
             pyb.fund"
         )
@@ -84,16 +85,15 @@ class TestDBAdaptor:
             "501216": {"list_status_cd": "L"},
         }
         db = DBAdaptor()
-        db.updateAnyeByTicker(Fund, update_dict)
-        df = db.getDfBySql(
+        db.update_any_by_ticker(Fund, update_dict)
+        df = db.get_df_by_sql(
             "select ticker, list_status_cd from pyb.fund where ticker in ('501216' ) "
         )
         logger.info(str(df))
         assert df.loc[df["list_status_cd"] != "L", :].shape[0] == 0
 
-    def test_get_any_by_id(self, db:DBAdaptor):
-        ss = db.getAnyById(SyncStatus, 1)
+    def test_get_any_by_id(self, db: DBAdaptor):
+        ss = db.get_any_by_id(SyncStatus, 1)
         assert ss is not None
-        assert ss.table_name == "equity" 
+        assert ss.table_name == "equity"
         assert ss.rc
-
