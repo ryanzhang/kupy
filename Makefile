@@ -38,7 +38,7 @@ lint:             ## Run pep8, black, mypy linters.
 	$(ENV_PREFIX)mypy --ignore-missing-imports kupy/
 
 .PHONY: test
-test: lint        ## Run tests and generate coverage report.
+test: fmt lint        ## Run tests and generate coverage report.
 	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=kupy -l --tb=short --maxfail=1 tests/
 	$(ENV_PREFIX)coverage xml
 	$(ENV_PREFIX)coverage html
@@ -49,19 +49,19 @@ watch:            ## Run tests on every change.
 
 .PHONY: clean
 clean:            ## Clean unused files.
-	@find ./ -name '*.pyc' -exec rm -f {} \;
-	@find ./ -name '__pycache__' -exec rm -rf {} \;
-	@find ./ -name 'Thumbs.db' -exec rm -f {} \;
-	@find ./ -name '*~' -exec rm -f {} \;
-	@rm -rf .cache
-	@rm -rf .pytest_cache
-	@rm -rf .mypy_cache
-	@rm -rf build
-	@rm -rf dist
-	@rm -rf *.egg-info
-	@rm -rf htmlcov
-	@rm -rf .tox/
-	@rm -rf docs/_build
+	-find ./ -name '*.pyc' -exec rm -f {} \;
+	-find ./ -name '__pycache__' -exec rm -rf {} \;
+	-find ./ -name 'Thumbs.db' -exec rm -f {} \;
+	-find ./ -name '*~' -exec rm -f {} \;
+	-rm -rf .cache
+	-rm -rf .pytest_cache
+	-rm -rf .mypy_cache
+	-rm -rf build
+	-rm -rf dist
+	-rm -rf *.egg-info
+	-rm -rf htmlcov
+	-rm -rf .tox/
+	-rm -rf docs/_build
 
 .PHONY: virtualenv
 virtualenv:       ## Create a virtual environment.
@@ -115,11 +115,13 @@ init:             ## Initialize the project based on an application template.
 
 .PHONY: testdist testdist stagedeploy
 
-stagedeploy: clean test pre_release systest
+stagedeploy: clean test testdist systest
 
+PRE_TAG := $(cat kupy/VERSION)
 testdist:
-	@pre_version=$(cat kupy/VERSION)
-	@read -p "Version? (provide the next x.y.z version,Previous tag, $${{pre_version}}) : " TAG
+	@git checkout kupy/VERSION
+	@echo "$(PRE_TAG)"
+	@read -p "Version? (provide the next x.y.z version,Previous tag, $(PRE_TAG) ) : " TAG
 	@echo "$${TAG}" > kupy/VERSION
 	python setup.py sdist bdist_wheel
 	twine upload -r pypitest dist/*
