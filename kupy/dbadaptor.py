@@ -36,6 +36,14 @@ _conn_string = (
 _db_string = f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}"
 
 
+"""
+DBAdaptor postgresql DB适配器
+提供一下能力:
+sql_query -> dataframe
+sqlalchemy 增删改查 entity能力
+
+"""
+
 class DBAdaptor:
     def __init__(
         self, conn_string="", sqlalchemy_connect_string="", is_use_cache=False
