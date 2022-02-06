@@ -29,9 +29,9 @@ if os.path.exists(config_path):
     with open(config_path, "rb") as config_file:
         configs.load(config_file)
         if configs.get("data_folder") is not None:
-            data_folder = configs["data_folder"].data
-            if not os.path.exists(data_folder + "cache/"):
-                os.makedirs(data_folder, 755)
+            cache_folder = configs["data_folder"].data + "cache/"
+            if not os.path.exists(cache_folder):
+                os.makedirs(cache_folder, 755)
 
 if not configs["log_output_path"]:
     log_file_path = configs["log_output_path"].data
