@@ -1,3 +1,10 @@
+# 发布流程
+```
+# Make sure all the code change has been commit 
+make stagedeploy
+#optional backtime
+make dist
+```
 # About this template
 
 Hi, I created this template to help you get started with a new project.

@@ -76,9 +76,7 @@ virtualenv:       ## Create a virtual environment.
 
 .PHONY: release
 release:          ## Create a new tag for release.
-	@echo "WARNING: This operation will create s version tag and push to github"
-	@read -p "Version? (provide the next x.y.z semver) : " TAG
-	@echo "$${TAG}" > kupy/VERSION
+	@TAG=$(cat kupy/VERSION)
 	@$(ENV_PREFIX)gitchangelog > HISTORY.md
 	@git add kupy/VERSION HISTORY.md
 	@git commit -m "release: version $${TAG} 🚀"
@@ -115,13 +113,25 @@ switch-to-poetry: ## Switch to poetry package manager.
 init:             ## Initialize the project based on an application template.
 	@./.github/init.sh
 
-.PHONY: testdist
+.PHONY: testdist testdist stagedeploy
+
+stagedeploy: clean test pre_release systest
+
 testdist:
+	@pre_version=$(cat kupy/VERSION)
+	@read -p "Version? (provide the next x.y.z version,Previous tag, $${{pre_version}}) : " TAG
+	@echo "$${TAG}" > kupy/VERSION
 	python setup.py sdist bdist_wheel
 	twine upload -r pypitest dist/*
+	#Wait 5 minute
+	@sleep 5
+
+systest:
+	cd systest && make systest
+	
 
 .PHONY: sdist
-sdist:
+dist: release
 	python setup.py sdist bdist_wheel
 	twine upload -r pypi dist/*
 
