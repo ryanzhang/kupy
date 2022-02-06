@@ -118,12 +118,12 @@ init:             ## Initialize the project based on an application template.
 .PHONY: testdist
 testdist:
 	python setup.py sdist bdist_wheel
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+	twine upload -r pypitest dist/*
 
 .PHONY: sdist
 sdist:
 	python setup.py sdist bdist_wheel
-	twine upload dist/*
+	twine upload -r pypi dist/*
 
 # Make container image by podman
 #You would need podman for this

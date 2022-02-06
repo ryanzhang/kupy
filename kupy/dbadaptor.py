@@ -33,8 +33,7 @@ _conn_string = (
     + postgres_password
 )
 
-_db_string = \
-    f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}"
+_db_string = f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}"
 
 
 class DBAdaptor:
