@@ -15,7 +15,8 @@ xfail = pytest.mark.xfail
 
 query_sql = "select * from pyb.fund"
 expect_cache_file_path = (
-    configs["cache_folder"].data
+    configs["data_folder"].data
+    + "cache/"
     + DBAdaptor.calculateCacheFilename(query_sql)
     + ".pkl"
 )
