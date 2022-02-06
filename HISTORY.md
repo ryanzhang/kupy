@@ -4,6 +4,8 @@ Changelog
 
 (unreleased)
 ------------
+- Fix release target in Makefile. [Ryan Zhang]
+- Release: version  🚀 [Ryan Zhang]
 - Release: version  🚀 [Ryan Zhang]
 - Ready to release 0.1.8. [Ryan Zhang]
 - 增加fmt before lint. [Ryan Zhang]
