@@ -259,6 +259,44 @@ class DBAdaptor:
 
         return True
 
+    def execute_any_sql(self, sql:str):
+        try:
+            # create a new cursor
+            cur = self.conn.cursor()
+            # execute the INSERT statement
+            cur.execute(sql)
+            self.conn.commit()
+            cur.close()
+            logger.debug(f"Execute sql:{sql} successfully")
+        except (Exception, psycopg2.DatabaseError) as error:
+            logger.error(f"Execute sql:{sql} error {error}")
+            raise error
+
+    def delete_all(self, cls) -> bool:
+        """Delete all rows in SqlAlchemy entity 
+
+        Args:
+            cls (class): [entity class name]
+
+        Returns:
+            bool: [操作是否成功]
+        """
+        logger.info("Underconstruction")
+        return False
+        pass
+        # try:
+        #     session = Session(self.engine)
+        #     session.query(cls).all().delete()
+        #     session.commit()
+        # except Exception as e:
+        #     logger.error(
+        #         "Delete record from db error" + traceback.format_exc()
+        #     )
+        #     logger.error("Exception is: " + str(e))
+        #     return False
+
+        # return True
+
     @staticmethod
     def get_hash_filename(query_sql) -> str:
         """静态方法，根据sql生成5位hash串, 缓存pkl和csv文件以次命名, cache路径来自于configs["data_folder"].data设定+cache/目录
