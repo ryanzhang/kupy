@@ -136,7 +136,8 @@ systest:
 	
 
 .PHONY: sdist
-dist: release
+# sdist:
+sdist: release
 	python setup.py sdist bdist_wheel
 	twine upload -r pypi dist/*
 
