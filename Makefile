@@ -82,7 +82,7 @@ release:          ## Create a new tag for release.
 	git commit -m "release: version $${TAG} 🚀";\
 	echo "creating git tag : v$${TAG}";\
 	git tag v$${TAG} ;\
-	echo $${TAG}.dev > kupy/VERSION;\
+	echo $${TAG}.1dev > kupy/VERSION;\
 	git add kupy/VERSION;\
 	git commit -m "Pump version up $${TAG}.dev";
 	@git push -u origin HEAD --tags
