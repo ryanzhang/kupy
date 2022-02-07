@@ -30,16 +30,15 @@ class TestDBAdaptor:
         if os.path.exists(expect_cache_file_path):
             os.remove(expect_cache_file_path)
         return db
-    
-    def test_delete_by_id_range(self, db:DBAdaptor):
-        #Insert two records to fund
-        entity_list=list()
+
+    def test_delete_by_id_range(self, db: DBAdaptor):
+        # Insert two records to fund
+        entity_list = list()
         for i in range(5):
             fund = Fund()
             fund.ticker = "40000" + str(i)
             entity_list.append(fund)
         db.save_all(entity_list)
-
 
     def test_cache_file_name(self, db):
         cache1 = db.get_hash_filename("select * from pyb.fund")
@@ -108,8 +107,10 @@ class TestDBAdaptor:
         assert ss.table_name == "equity"
         assert ss.rc
 
-    def test_execute_any_sql(self, db:DBAdaptor):
-        db.execute_any_sql("update pyb.sync_status set comment='update by test_execute_any_sql' where id =1 ")
+    def test_execute_any_sql(self, db: DBAdaptor):
+        db.execute_any_sql(
+            "update pyb.sync_status set comment='update by test_execute_any_sql' where id =1 "
+        )
         syncstatus = db.get_any_by_id(SyncStatus, 1)
 
         assert "update by test_execute_any_sql" == syncstatus.comment

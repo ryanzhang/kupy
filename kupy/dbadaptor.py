@@ -259,7 +259,7 @@ class DBAdaptor:
 
         return True
 
-    def execute_any_sql(self, sql:str):
+    def execute_any_sql(self, sql: str):
         try:
             # create a new cursor
             cur = self.conn.cursor()
@@ -273,7 +273,7 @@ class DBAdaptor:
             raise error
 
     def delete_all(self, cls) -> bool:
-        """Delete all rows in SqlAlchemy entity 
+        """Delete all rows in SqlAlchemy entity
 
         Args:
             cls (class): [entity class name]

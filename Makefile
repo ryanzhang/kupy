@@ -38,7 +38,7 @@ lint:             ## Run pep8, black, mypy linters.
 	$(ENV_PREFIX)mypy --ignore-missing-imports kupy/
 
 .PHONY: test
-test: fmt lint        ## Run tests and generate coverage report.
+test: lint        ## Run tests and generate coverage report.
 	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=kupy -l --tb=short --maxfail=1 tests/
 	$(ENV_PREFIX)coverage xml
 	$(ENV_PREFIX)coverage html
@@ -78,12 +78,13 @@ virtualenv:       ## Create a virtual environment.
 release:          ## Create a new tag for release.
 	@$(ENV_PREFIX)gitchangelog > HISTORY.md
 	@git add kupy/VERSION HISTORY.md
-	@TAG=v$(shell cat kupy/VERSION|cut -c1-5);\
+	@TAG=$(shell cat kupy/VERSION|cut -c1-5);\
 	git commit -m "release: version $${TAG} 🚀";\
-	echo "creating git tag : $${TAG}";\
-	git tag $${TAG} ;\
+	echo "creating git tag : v$${TAG}";\
+	git tag v$${TAG} ;\
 	echo $${TAG}.dev > kupy/VERSION;\
-	git commit -m "Pump version up $${TAG}.dev";\
+	git add kupy/VERSION;\
+	git commit -m "Pump version up $${TAG}.dev";
 	@git push -u origin HEAD --tags
 	@git push -u origin HEAD 
 	@echo "Github Actions will detect the new tag and release the new version."
@@ -122,13 +123,13 @@ stagedeploy: clean test testdist systest
 
 testdist:
 	@git checkout kupy/VERSION
-	@PRE_TAG = $(shell cat kupy/VERSION|cut -c1-5)
-	@read -p "Version? (provide the next x.y.z version,Previous tag, $(PRE_TAG) ) : " TAG;\
+	@PRE_TAG=$(shell cat kupy/VERSION|cut -c1-5);\
+	read -p "Version? (provide the next x.y.z version,Previous tag, $${PRE_TAG} ) : " TAG;\
 	echo $$TAG > kupy/VERSION;\
 	python setup.py sdist bdist_wheel
 	twine upload -r pypitest dist/*
-	#Wait 10 seconds for test.pypi.org to proceed
-	@sleep 10
+	#Wait 15 seconds for test.pypi.org to proceed
+	@sleep 15
 
 systest:
 	cd systest && make test
