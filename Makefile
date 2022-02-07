@@ -78,11 +78,14 @@ virtualenv:       ## Create a virtual environment.
 release:          ## Create a new tag for release.
 	@$(ENV_PREFIX)gitchangelog > HISTORY.md
 	@git add kupy/VERSION HISTORY.md
-	@TAG=v$(shell cat kupy/VERSION);\
+	@TAG=v$(shell cat kupy/VERSION|cut -c1-5);\
 	git commit -m "release: version $${TAG} 🚀";\
 	echo "creating git tag : $${TAG}";\
-	git tag $${TAG} ;
+	git tag $${TAG} ;\
+	echo $${TAG}.dev > kupy/VERSION;\
+	git commit -m "Pump version up $${TAG}.dev";\
 	@git push -u origin HEAD --tags
+	@git push -u origin HEAD 
 	@echo "Github Actions will detect the new tag and release the new version."
 
 .PHONY: docs
@@ -113,13 +116,13 @@ switch-to-poetry: ## Switch to poetry package manager.
 init:             ## Initialize the project based on an application template.
 	@./.github/init.sh
 
-.PHONY: testdist testdist stagedeploy systest
+.PHONY: testdist stagedeploy systest
 
 stagedeploy: clean test testdist systest
 
-PRE_TAG := $(shell cat kupy/VERSION)
 testdist:
 	@git checkout kupy/VERSION
+	@PRE_TAG = $(shell cat kupy/VERSION|cut -c1-5)
 	@read -p "Version? (provide the next x.y.z version,Previous tag, $(PRE_TAG) ) : " TAG;\
 	echo $$TAG > kupy/VERSION;\
 	python setup.py sdist bdist_wheel
