@@ -39,9 +39,9 @@ lint:             ## Run pep8, black, mypy linters.
 
 .PHONY: test
 test: lint        ## Run tests and generate coverage report.
-	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=kupy -l --tb=short --maxfail=1 tests/
+	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=kupy -l --tb=short --maxfail=1 tests/ || exit 1
 	$(ENV_PREFIX)coverage xml
-	$(ENV_PREFIX)coverage html
+	# $(ENV_PREFIX)coverage html
 
 .PHONY: watch
 watch:            ## Run tests on every change.
@@ -78,7 +78,7 @@ virtualenv:       ## Create a virtual environment.
 release:          ## Create a new tag for release.
 	@$(ENV_PREFIX)gitchangelog > HISTORY.md
 	@git add kupy/VERSION HISTORY.md
-	@TAG=$(shell cat kupy/VERSION|cut -c1-5);\
+	@TAG=$(shell cat kupy/VERSION|sed "s/.1dev//");\
 	git commit -m "release: version $${TAG} 🚀";\
 	echo "creating git tag : v$${TAG}";\
 	git tag v$${TAG} ;\
@@ -123,7 +123,7 @@ stagedeploy: clean test testdist systest
 
 testdist:
 	@git checkout kupy/VERSION
-	@PRE_TAG=$(shell cat kupy/VERSION|cut -c1-5);\
+	@PRE_TAG=$(shell cat kupy/VERSION|sed "s/.1dev//");\
 	read -p "Version? (provide the next x.y.z version,Previous tag, $${PRE_TAG} ) : " TAG;\
 	echo $$TAG > kupy/VERSION;\
 	python setup.py sdist bdist_wheel
