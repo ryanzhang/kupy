@@ -4,37 +4,13 @@ import os.path
 import traceback
 
 import pandas as pd
-import psycopg2
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
 from kupy.config import configs
 from kupy.logger import logger
 
-Base = declarative_base()
-
-postgres_host = configs["postgres_host"].data
-postgres_port = configs["postgres_port"].data
-postgres_user = configs["postgres_user"].data
-postgres_password = configs["postgres_password"].data
-postgres_database = configs["postgres_database"].data
-
-_conn_string = (
-    "host="
-    + postgres_host
-    + " port="
-    + postgres_port
-    + " dbname="
-    + postgres_database
-    + " user="
-    + postgres_user
-    + " password="
-    + postgres_password
-)
-
-_db_string = f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}"
-
+_db_string = configs["sqlalchemy_db_string"].data
 
 """
 DBAdaptor postgresql DB适配器
@@ -43,11 +19,9 @@ sql_query -> dataframe
 sqlalchemy 增删改查 entity能力
 
 """
-
-
 class DBAdaptor:
     def __init__(
-        self, conn_string="", sqlalchemy_connect_string="", is_use_cache=False
+        self,  sqlalchemy_connect_string="", is_use_cache=False
     ):
         """构造函数
 
@@ -56,13 +30,11 @@ class DBAdaptor:
             sqlalchemy_connect_string(str, optional): sqlalchemy库的数据库链接串, Defaults to 系统配置文件中的配置.
             is_use_cache (bool, optional): 是否允许使用pkl cache对sql查询进行缓冲. Defaults to False.
         """
-        if conn_string == "":
-            conn_string = _conn_string
-        self.conn_string = conn_string
-        self.conn = psycopg2.connect(self.conn_string)
+
         self.is_use_cache = is_use_cache
         if sqlalchemy_connect_string == "":
             sqlalchemy_connect_string = _db_string
+        logger.debug(f"sqlalchemy connection string: {sqlalchemy_connect_string}")
         self.engine = create_engine(sqlalchemy_connect_string)
 
     def set_cache_mode(self, is_use_cache):
@@ -91,6 +63,21 @@ class DBAdaptor:
         df.to_csv(csv_file_path)
 
         return df, csv_file_path
+    
+    def __get_df_by_sqlalchemy(self,query)->pd.DataFrame:
+        try:
+            session = Session(self.engine)
+            query = session.execute(query)
+            df = pd.DataFrame(query.fetchall())
+            if len(df) > 0:
+                df.columns = query.keys()
+            else:
+                columns = query.keys()
+                df = pd.DataFrame(columns=columns)
+        except Exception as e:
+            logger.error("执行{query}出错!")
+            raise e
+        return df
 
     def get_df_by_sql(self, query_sql: str) -> pd.DataFrame:
         """[根据sql返回DataFrame, 是否使用缓存保存pkl结果取决于set_cache_mode，或者构造函数设定]
@@ -112,13 +99,10 @@ class DBAdaptor:
             df_cache_file = None
 
         if self.is_use_cache and os.path.exists(df_cache_file):
-            df = pd.read_pickle(df_cache_file)
+            df = self.__get_df_by_sqlalchemy(query_sql)
         else:
             try:
-                logger.debug(
-                    f"Loading Query from pg_host:{postgres_host}, query_sql: {query_sql}"
-                )
-                df = pd.read_sql(query_sql, self.conn)
+                df = self.__get_df_by_sqlalchemy(query_sql)
             except Exception as e:
                 logger.error(
                     "loading data from db failure" + traceback.format_exc()
@@ -150,6 +134,26 @@ class DBAdaptor:
         """
         session = Session(self.engine)
         return session.query(cls).filter(cls.id == id)[0]
+
+    def get_any_by_any_column(self, cls, column_name:str, column_value:str)->list:
+        """根据id号获取entity对象，返回的entity对象实例由cls 对象指定
+
+        Args:
+            cls (class对象): sqlalchemy的entity 对象
+            id ([int]): [id的数字]
+
+        Returns:
+            [any]: [返回根据cls定义的对象实例, cls必须是sqlalchemy entity对象]
+        """
+        session = Session(self.engine)
+        table_name = ""
+        if cls.__table__.schema is not None:
+            table_name = cls.__table__.schema + "."
+        table_name = cls.__table__.name
+
+        return session.query(cls).from_statement(
+            text(f"select * from {table_name} where {column_name} = '{column_value}'")
+        ).all()
 
     def save(self, entity) -> bool:
         """Save 单个sqlalchemy 对象
@@ -262,13 +266,12 @@ class DBAdaptor:
     def execute_any_sql(self, sql: str):
         try:
             # create a new cursor
-            cur = self.conn.cursor()
+            session = Session(self.engine)
             # execute the INSERT statement
-            cur.execute(sql)
-            self.conn.commit()
-            cur.close()
+            session.execute(sql)
+            session.commit()
             logger.debug(f"Execute sql:{sql} successfully")
-        except (Exception, psycopg2.DatabaseError) as error:
+        except Exception as error:
             logger.error(f"Execute sql:{sql} error {error}")
             raise error
 
@@ -296,6 +299,33 @@ class DBAdaptor:
         #     return False
 
         # return True
+
+    def execute_sql_file(self, sql_file:str)->bool:
+        if not os.path.exists(sql_file):
+            raise Exception(f"文件不存在: {sql_file}")
+        try:
+            session = Session(self.engine)
+            sql = ""
+            with open(sql_file, "rb") as sql_file:
+                lines = sql_file.readlines()
+                for line in lines:
+                    line = line.decode("utf-8").strip()
+                    if line.startswith("--"):
+                        continue
+                    if not line.endswith(";"):
+                        sql = sql + line
+                    else:
+                        sql = sql + line;
+                        logger.debug(f"Execute sql: {sql}")
+                        session.execute(sql)
+                        sql = ""
+
+            session.commit()
+            logger.debug(f"Execute sql file:{sql_file} successfully")
+        except Exception as error:
+            logger.error(f"Execute sql:{sql_file}, sql statement:{sql} error {error}")
+            raise error        
+        return True
 
     @staticmethod
     def get_hash_filename(query_sql) -> str:

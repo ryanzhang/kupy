@@ -147,8 +147,9 @@ sdist: release
 image:
 	@read -p "Version? (provide the next x.y.z version,Suggest projectversion-buildtag, eg: 0.0.1-1) : " TAG
 	podman build -f Containerfile . -t kupy:$${TAG}	
+
 # This project has been generated from ryanzhang/python-project-template which is forked from 
 # rochacbruno/python-project-template
-# __author__ = 'rochacbruno'
+# original template __author__ = 'rochacbruno'
 # __repo__ = https://github.com/rochacbruno/python-project-template
 # __sponsor__ = https://github.com/sponsors/rochacbruno/

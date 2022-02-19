@@ -13,7 +13,7 @@ skip = pytest.mark.skip
 xfail = pytest.mark.xfail
 
 
-query_sql = "select * from pyb.fund"
+query_sql = "select * from fund"
 expect_cache_file_path = (
     configs["data_folder"].data
     + "cache/"
@@ -27,6 +27,7 @@ class TestDBAdaptor:
     def db(self):
         logger.info("Setup for Class")
         db = DBAdaptor(is_use_cache=True)
+        db.execute_sql_file(os.path.dirname(os.path.abspath(__file__)) + "/init.sql")
         if os.path.exists(expect_cache_file_path):
             os.remove(expect_cache_file_path)
         return db
@@ -41,19 +42,16 @@ class TestDBAdaptor:
         db.save_all(entity_list)
 
     def test_cache_file_name(self, db):
-        cache1 = db.get_hash_filename("select * from pyb.fund")
+        cache1 = db.get_hash_filename("select * from fund")
         assert 5 == len(cache1)
-        cache2 = db.get_hash_filename("select * from pyb.sync_status")
+        cache2 = db.get_hash_filename("select * from sync_status")
         assert 5 == len(cache2)
         assert cache1 != cache2
 
     def test_get_sql_without_cache(self, db):
         db.set_cache_mode(False)
-        df, csv_file = db.get_df_csv_by_sql(query_sql)
+        df= db.get_df_by_sql(query_sql)
         assert df is not None
-        assert csv_file is not None
-        # assert not os.path.exists(expect_cache_file_path)
-        assert os.path.exists(csv_file)
 
     def test_get_sql_with_cache(self, db):
         db.set_cache_mode(True)
@@ -78,7 +76,7 @@ class TestDBAdaptor:
     def test_load_sql(self, db):
         df_equ = db.get_df_by_sql(
             "select sec_id,ticker, sec_short_name from \
-            pyb.fund"
+            fund"
         )
         assert df_equ is not None and df_equ.shape[0] > 0
         logger.info(f"stock account:{df_equ.shape[0]}")
@@ -96,7 +94,7 @@ class TestDBAdaptor:
         db = DBAdaptor()
         db.update_any_by_ticker(Fund, update_dict)
         df = db.get_df_by_sql(
-            "select ticker, list_status_cd from pyb.fund where ticker in ('501216' ) "
+            "select ticker, list_status_cd from fund where ticker in ('501216' ) "
         )
         logger.info(str(df))
         assert df.loc[df["list_status_cd"] != "L", :].shape[0] == 0
@@ -109,8 +107,20 @@ class TestDBAdaptor:
 
     def test_execute_any_sql(self, db: DBAdaptor):
         db.execute_any_sql(
-            "update pyb.sync_status set comment='update by test_execute_any_sql' where id =1 "
+            "update sync_status set comment='update by test_execute_any_sql' where id =1 "
         )
         syncstatus = db.get_any_by_id(SyncStatus, 1)
 
         assert "update by test_execute_any_sql" == syncstatus.comment
+
+    def test_get_any_by_any_column(self, db:DBAdaptor):
+        ss = db.get_any_by_any_column( SyncStatus, "table_name", "equity")[0]
+        # ss = db.get_any_by_id(SyncStatus, 1)
+        assert ss is not None
+        assert ss.table_name == "equity"
+        assert ss.rc
+    
+    def test_execute_sql_file(self, db:DBAdaptor):
+        test_sql_file=os.path.dirname(os.path.abspath(__file__)) + "/test_sql_file.sql"
+        ret = db.execute_sql_file(test_sql_file)
+        assert ret 

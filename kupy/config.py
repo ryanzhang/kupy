@@ -1,15 +1,10 @@
 # -*- coding: UTF-8 -*-
 import os
-
 from jproperties import Properties
 
 configs = Properties()
 default_setting = {
-    "postgres_host": "",
-    "postgres_port": "5432",
-    "postgres_user": "",
-    "postgres_password": "",
-    "postgres_database": "",
+    "sqlalchemy_db_string": "sqlite:///tmp/kupy_sqlite.db",
     "log_level": "INFO",
     "log_output_path": "",
     "data_folder": "/tmp/",
@@ -18,6 +13,7 @@ default_setting = {
 for (key, value) in default_setting.items():
     configs.setdefault(key, value)
 
+# 获取谁调用了你的信息. 因为改成了直接把配置文件放在项目根，免去了查询谁调用了你的信息
 # pid=os.getpid()
 # print(psutil.Process(pid).cmdline())
 # print(os.getcwd())
