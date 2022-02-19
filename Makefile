@@ -77,8 +77,9 @@ virtualenv:       ## Create a virtual environment.
 .PHONY: release
 release:          ## Create a new tag for release.
 	@$(ENV_PREFIX)gitchangelog > HISTORY.md
-	@git add kupy/VERSION HISTORY.md
 	@TAG=$(shell cat kupy/VERSION|sed "s/.1dev//");\
+	sed -i "s=unreleased=$${TAG}=g" HISTORY.md||True;\
+	git add kupy/VERSION HISTORY.md;\
 	git commit -m "release: version $${TAG} 🚀";\
 	echo "creating git tag : v$${TAG}";\
 	git tag v$${TAG} ;\
