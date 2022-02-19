@@ -38,10 +38,11 @@ class Fund(Base):
     __tablename__ = "fund"
     # __table_args__ = {"schema": "pyb"}
 
-    #sqlite don't support sequence
+    # sqlite don't support sequence
     id = Column(
         # Integer, Sequence("fund_id_seq", schema="pyb"), primary_key=True
-        Integer,  primary_key=True
+        Integer,
+        primary_key=True,
     )
     sec_id = Column(
         String(255)

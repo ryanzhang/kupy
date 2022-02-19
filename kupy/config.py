@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import os
+
 from jproperties import Properties
 
 configs = Properties()

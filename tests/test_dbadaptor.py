@@ -27,7 +27,9 @@ class TestDBAdaptor:
     def db(self):
         logger.info("Setup for Class")
         db = DBAdaptor(is_use_cache=True)
-        db.execute_sql_file(os.path.dirname(os.path.abspath(__file__)) + "/init.sql")
+        db.execute_sql_file(
+            os.path.dirname(os.path.abspath(__file__)) + "/init.sql"
+        )
         if os.path.exists(expect_cache_file_path):
             os.remove(expect_cache_file_path)
         return db
@@ -50,7 +52,7 @@ class TestDBAdaptor:
 
     def test_get_sql_without_cache(self, db):
         db.set_cache_mode(False)
-        df= db.get_df_by_sql(query_sql)
+        df = db.get_df_by_sql(query_sql)
         assert df is not None
 
     def test_get_sql_with_cache(self, db):
@@ -113,14 +115,16 @@ class TestDBAdaptor:
 
         assert "update by test_execute_any_sql" == syncstatus.comment
 
-    def test_get_any_by_any_column(self, db:DBAdaptor):
-        ss = db.get_any_by_any_column( SyncStatus, "table_name", "equity")[0]
+    def test_get_any_by_any_column(self, db: DBAdaptor):
+        ss = db.get_any_by_any_column(SyncStatus, "table_name", "equity")[0]
         # ss = db.get_any_by_id(SyncStatus, 1)
         assert ss is not None
         assert ss.table_name == "equity"
         assert ss.rc
-    
-    def test_execute_sql_file(self, db:DBAdaptor):
-        test_sql_file=os.path.dirname(os.path.abspath(__file__)) + "/test_sql_file.sql"
+
+    def test_execute_sql_file(self, db: DBAdaptor):
+        test_sql_file = (
+            os.path.dirname(os.path.abspath(__file__)) + "/test_sql_file.sql"
+        )
         ret = db.execute_sql_file(test_sql_file)
-        assert ret 
+        assert ret

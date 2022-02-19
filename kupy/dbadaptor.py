@@ -19,10 +19,10 @@ sql_query -> dataframe
 sqlalchemy 增删改查 entity能力
 
 """
+
+
 class DBAdaptor:
-    def __init__(
-        self,  sqlalchemy_connect_string="", is_use_cache=False
-    ):
+    def __init__(self, sqlalchemy_connect_string="", is_use_cache=False):
         """构造函数
 
         Args:
@@ -34,7 +34,9 @@ class DBAdaptor:
         self.is_use_cache = is_use_cache
         if sqlalchemy_connect_string == "":
             sqlalchemy_connect_string = _db_string
-        logger.debug(f"sqlalchemy connection string: {sqlalchemy_connect_string}")
+        logger.debug(
+            f"sqlalchemy connection string: {sqlalchemy_connect_string}"
+        )
         self.engine = create_engine(sqlalchemy_connect_string)
 
     def set_cache_mode(self, is_use_cache):
@@ -63,8 +65,8 @@ class DBAdaptor:
         df.to_csv(csv_file_path)
 
         return df, csv_file_path
-    
-    def __get_df_by_sqlalchemy(self,query)->pd.DataFrame:
+
+    def __get_df_by_sqlalchemy(self, query) -> pd.DataFrame:
         try:
             session = Session(self.engine)
             query = session.execute(query)
@@ -135,7 +137,9 @@ class DBAdaptor:
         session = Session(self.engine)
         return session.query(cls).filter(cls.id == id)[0]
 
-    def get_any_by_any_column(self, cls, column_name:str, column_value:str)->list:
+    def get_any_by_any_column(
+        self, cls, column_name: str, column_value: str
+    ) -> list:
         """根据id号获取entity对象，返回的entity对象实例由cls 对象指定
 
         Args:
@@ -151,9 +155,15 @@ class DBAdaptor:
             table_name = cls.__table__.schema + "."
         table_name = cls.__table__.name
 
-        return session.query(cls).from_statement(
-            text(f"select * from {table_name} where {column_name} = '{column_value}'")
-        ).all()
+        return (
+            session.query(cls)
+            .from_statement(
+                text(
+                    f"select * from {table_name} where {column_name} = '{column_value}'"
+                )
+            )
+            .all()
+        )
 
     def save(self, entity) -> bool:
         """Save 单个sqlalchemy 对象
@@ -300,22 +310,22 @@ class DBAdaptor:
 
         # return True
 
-    def execute_sql_file(self, sql_file:str)->bool:
+    def execute_sql_file(self, sql_file: str) -> bool:
         if not os.path.exists(sql_file):
             raise Exception(f"文件不存在: {sql_file}")
         try:
             session = Session(self.engine)
             sql = ""
-            with open(sql_file, "rb") as sql_file:
-                lines = sql_file.readlines()
-                for line in lines:
-                    line = line.decode("utf-8").strip()
+            with open(sql_file, "rb") as f:
+                lines = f.readlines()
+                for bline in lines:
+                    line = bline.decode("utf-8").strip()
                     if line.startswith("--"):
                         continue
                     if not line.endswith(";"):
                         sql = sql + line
                     else:
-                        sql = sql + line;
+                        sql = sql + line
                         logger.debug(f"Execute sql: {sql}")
                         session.execute(sql)
                         sql = ""
@@ -323,8 +333,10 @@ class DBAdaptor:
             session.commit()
             logger.debug(f"Execute sql file:{sql_file} successfully")
         except Exception as error:
-            logger.error(f"Execute sql:{sql_file}, sql statement:{sql} error {error}")
-            raise error        
+            logger.error(
+                f"Execute sql:{sql_file}, sql statement:{sql} error {error}"
+            )
+            raise error
         return True
 
     @staticmethod
