@@ -4,6 +4,14 @@ Changelog
 
 (unreleased)
 ------------
+- Apply fmt and lint. [Ryan Zhang]
+- Refactor the code 1. remove psycopg2 deps 2. add get_any_by_any_column
+  api 3. use sqlite instead of pg for kupy 4. add execute_sql_file api.
+  [Ryan Zhang]
+- Improve python dev(snapshot) version. [Ryan Zhang]
+- Improve Makefile. [Ryan Zhang]
+- Pump version up 0.1.9.dev. [Ryan Zhang]
+- Release: version 0.1.9 🚀 [Ryan Zhang]
 - Improve Makefile. [Ryan Zhang]
 - Start to use dev version  for developement ie 0.1.8-dev, and improve
   the tag process. [Ryan Zhang]
