@@ -4,6 +4,13 @@ Changelog
 
 (unreleased)
 ------------
+- Sqlalchemy still require psycopg2-binary. [Ryan Zhang]
+- Fix the systest not upgraded. [Ryan Zhang]
+- Improve Makefile release target. [Ryan Zhang]
+- Improve the release process (fix the 0.1.11 issue when tag. [Ryan
+  Zhang]
+- Pump version up 0.1.1.dev. [Ryan Zhang]
+- Release: version 0.1.1 🚀 [Ryan Zhang]
 - Apply fmt and lint. [Ryan Zhang]
 - Refactor the code 1. remove psycopg2 deps 2. add get_any_by_any_column
   api 3. use sqlite instead of pg for kupy 4. add execute_sql_file api.
