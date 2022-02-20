@@ -120,7 +120,7 @@ init:             ## Initialize the project based on an application template.
 
 .PHONY: testdist stagedeploy systest
 
-stagedeploy: clean test testdist systest
+sdist: clean test testdist systest
 
 testdist:
 	@git checkout kupy/VERSION
@@ -129,8 +129,8 @@ testdist:
 	echo $$TAG > kupy/VERSION;\
 	python setup.py sdist bdist_wheel
 	twine upload -r pypitest dist/*
-	#Wait 15 seconds for test.pypi.org to proceed
-	@sleep 15
+	#Wait 30 seconds for test.pypi.org to proceed
+	@sleep 30
 
 systest:
 	cd systest && make test
@@ -138,7 +138,7 @@ systest:
 
 .PHONY: sdist
 # sdist:
-sdist: release
+dist: release
 	python setup.py sdist bdist_wheel
 	twine upload -r pypi dist/*
 
