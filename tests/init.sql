@@ -1,5 +1,5 @@
-drop table sync_status;
-drop table fund;
+drop table IF EXISTS sync_status;
+drop table IF EXISTS fund;
 CREATE TABLE IF NOT EXISTS sync_status  (
     id BIGINT NOT NULL,
     table_name VARCHAR(255),

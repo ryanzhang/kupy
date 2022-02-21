@@ -129,10 +129,10 @@ testdist:
 	echo $$TAG > kupy/VERSION;\
 	python setup.py sdist bdist_wheel
 	twine upload -r pypitest dist/*
-	#Wait 30 seconds for test.pypi.org to proceed
-	@sleep 30
 
 systest:
+	#Wait 30 seconds for test.pypi.org to proceed
+	@sleep 30
 	cd systest && make test
 	
 
