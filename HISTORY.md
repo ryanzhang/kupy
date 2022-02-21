@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Remove __main__.py and some useless file. [Ryan Zhang]
+- 1. fix cache bug and improve it to pyarrow 2. improve __init__.py
+  export module. [Ryan Zhang]
+- Change release target to sdist and dist. [Ryan Zhang]
+- Pump version up 0.1.12.dev. [Ryan Zhang]
+- Release: version 0.1.12 🚀 [Ryan Zhang]
 - Sqlalchemy still require psycopg2-binary. [Ryan Zhang]
 - Fix the systest not upgraded. [Ryan Zhang]
 - Improve Makefile release target. [Ryan Zhang]
