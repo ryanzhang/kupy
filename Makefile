@@ -122,7 +122,7 @@ init:             ## Initialize the project based on an application template.
 
 sdist: clean test testdist systest
 
-testdist:
+testdist: clean
 	@git checkout kupy/VERSION
 	@PRE_TAG=$(shell cat kupy/VERSION|sed "s/.1dev//");\
 	read -p "Version? (provide the next x.y.z version,Previous tag, $${PRE_TAG} ) : " TAG;\
@@ -139,7 +139,7 @@ systest:
 .PHONY: dist
 # sdist:
 dist: release
-	python setup.py sdist bdist_wheel
+	# python setup.py sdist bdist_wheel
 	twine upload -r pypi dist/*
 	
 
