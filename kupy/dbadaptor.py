@@ -28,7 +28,7 @@ class DBAdaptor:
         Args:
             conn_string (str, optional): psycogpg2库的数据库链接字符串. Defaults to 系统配置文件中的配置.
             sqlalchemy_connect_string(str, optional): sqlalchemy库的数据库链接串, Defaults to 系统配置文件中的配置.
-            is_use_cache (bool, optional): 是否允许使用pkl cache对sql查询进行缓冲. Defaults to False.
+            is_use_cache (bool, optional): 是否允许使用parquet cache对sql查询进行缓冲. Defaults to False.
         """
 
         self.is_use_cache = is_use_cache
@@ -40,7 +40,7 @@ class DBAdaptor:
         self.engine = create_engine(sqlalchemy_connect_string)
 
     def set_cache_mode(self, is_use_cache):
-        """设置是否使用pkl cache缓存查询
+        """设置是否使用parquet cache缓存查询
         Args:
             is_use_cache (bool): True或者False, 会覆盖构造函数是的设定
         """
@@ -82,7 +82,7 @@ class DBAdaptor:
         return df
 
     def get_df_by_sql(self, query_sql: str) -> pd.DataFrame:
-        """[根据sql返回DataFrame, 是否使用缓存保存pkl结果取决于set_cache_mode，或者构造函数设定]
+        """[根据sql返回DataFrame, 是否使用缓存保存parquet结果取决于set_cache_mode，或者构造函数设定]
 
         Args:
             query_sql ([str]): [sql查询语句]
@@ -95,13 +95,13 @@ class DBAdaptor:
                 configs["data_folder"].data
                 + "cache/"
                 + self.get_hash_filename(query_sql)
-                + ".pkl"
+                + ".parquet"
             )
         else:
             df_cache_file = None
 
         if self.is_use_cache and os.path.exists(df_cache_file):
-            df = self.__get_df_by_sqlalchemy(query_sql)
+            df = pd.read_parquet(df_cache_file, engine="pyarrow")
         else:
             try:
                 df = self.__get_df_by_sqlalchemy(query_sql)
@@ -120,7 +120,7 @@ class DBAdaptor:
                     logger.debug(
                         f"DF Size: {df.size}  Cache file: {df_cache_file} is_use_cache: {self.is_use_cache}"
                     )
-                    df.to_pickle(df_cache_file)
+                    df.to_parquet(df_cache_file, engine="pyarrow")
 
         return df
 
@@ -341,7 +341,7 @@ class DBAdaptor:
 
     @staticmethod
     def get_hash_filename(query_sql) -> str:
-        """静态方法，根据sql生成5位hash串, 缓存pkl和csv文件以次命名, cache路径来自于configs["data_folder"].data设定+cache/目录
+        """静态方法，根据sql生成5位hash串, 缓存parquet和csv文件以次命名, cache路径来自于configs["data_folder"].data设定+cache/目录
 
         Args:
             query_sql ([type]): [description]

@@ -1,6 +1,4 @@
-from kupy.config import configs
-from kupy.logger import logger
-from kupy.dbadaptor import DBAdaptor
+from kupy import *
 
 def main() -> None:  # pragma: no cover
     logger.info("Start systest")
