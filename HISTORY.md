@@ -4,6 +4,11 @@ Changelog
 
 (unreleased)
 ------------
+- Fix a log output path issue. [Ryan Zhang]
+- Exclude Contaierfile tests from release. [Ryan Zhang]
+- Improve Makefile. [Ryan Zhang]
+- Pump version up 0.1.13.dev. [Ryan Zhang]
+- Release: version 0.1.13 🚀 [Ryan Zhang]
 - Remove __main__.py and some useless file. [Ryan Zhang]
 - 1. fix cache bug and improve it to pyarrow 2. improve __init__.py
   export module. [Ryan Zhang]
