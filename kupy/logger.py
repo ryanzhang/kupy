@@ -11,7 +11,7 @@ logging_level = {
     "DEBUG": logging.DEBUG,
 }[level]
 
-if configs["log_output_path"].data != "":
+if configs.get("log_output_path") is not None and configs["log_output_path"].data != "":
     logging.basicConfig(
         filename=configs["log_output_path"].data,
         filemode="a",

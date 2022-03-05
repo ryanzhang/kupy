@@ -7,7 +7,6 @@ configs = Properties()
 default_setting = {
     "sqlalchemy_db_string": "sqlite:///tmp/kupy_sqlite.db",
     "log_level": "INFO",
-    "log_output_path": "",
     "data_folder": "/tmp/",
 }
 # 设置默认值
@@ -28,11 +27,11 @@ if os.path.exists(config_path):
         if configs.get("data_folder") is not None:
             cache_folder = configs["data_folder"].data + "cache/"
             if not os.path.exists(cache_folder):
-                os.makedirs(cache_folder, 755)
+                os.makedirs(name=cache_folder, mode=0o777, exist_ok=True)
 
-if configs["log_output_path"] is not None:
-    log_file_path = configs["log_output_path"].data
-    log_filename = os.path.basename(log_file_path)
-    log_folder = log_file_path.replace(log_filename, "")
-    if not os.path.exists(log_folder):
-        os.makedirs(log_folder, 755)
+        if configs.get("log_output_path") is not None:
+            log_file_path = configs["log_output_path"].data
+            log_filename = os.path.basename(log_file_path)
+            log_folder = log_file_path.replace(log_filename, "")
+            if not os.path.exists(log_folder):
+                os.makedirs(name=log_folder, mode=0o777, exist_ok=True)

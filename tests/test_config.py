@@ -7,4 +7,5 @@ def test_properties_been_load():
     assert configs is not None
     assert configs.get("sqlalchemy_db_string").data != ""
     assert configs.get("log_level").data != ""
+    # assert configs.get("log_output_path") is None
     assert configs.get("something_not_exists") is None
