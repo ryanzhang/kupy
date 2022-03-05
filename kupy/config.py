@@ -30,7 +30,7 @@ if os.path.exists(config_path):
             if not os.path.exists(cache_folder):
                 os.makedirs(cache_folder, 755)
 
-if not configs["log_output_path"]:
+if configs["log_output_path"] is not None:
     log_file_path = configs["log_output_path"].data
     log_filename = os.path.basename(log_file_path)
     log_folder = log_file_path.replace(log_filename, "")
